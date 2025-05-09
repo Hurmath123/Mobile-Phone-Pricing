@@ -53,16 +53,4 @@ streamlit run app.py
 
 ---
 
-## Files in this Repo
-
-| File                | Description                                |
-|---------------------|--------------------------------------------|
-| `app.py`            | Streamlit web app frontend and backend     |
-| `stacking_model.pkl`| Trained stacking model                     |
-| `scaler.pkl`        | Scaler used for input features             |
-| `features.pkl`      | List of features expected by the model     |
-| `target_labels.pkl` | Mapping of prediction to readable labels   |
-| `requirements.txt`  | List of Python dependencies                |
-
----
 
