@@ -1,0 +1,68 @@
+# Mobile Price Range Predictor
+
+A Streamlit web app that predicts the price range of a mobile phone based on its specifications using a machine learning model.
+
+---
+
+## Features
+
+- Accepts user input for 20 different phone features
+- Uses a stacked ensemble model (Logistic Regression, XGBoost, SVM)
+- Predicts price range: **Low**, **Medium**, **High**, or **Very High**
+- Clean, interactive UI built with **Streamlit**
+
+---
+
+## Model Details
+
+- Final Model: **StackingClassifier**
+- Base Models: Tuned Logistic Regression, XGBoost, and SVM
+- Accuracy: **98%**
+- F1 Score: **0.98**
+- Scaled input using `StandardScaler`
+
+---
+
+## How to Use
+
+### 1. Clone this repository
+```bash
+git clone https://github.com/your-username/mobile-price-predictor.git
+cd mobile-price-predictor
+```
+
+### 2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the app locally
+```bash
+streamlit run app.py
+```
+
+---
+
+## Deploy on Streamlit Cloud
+
+1. Push this repo to your GitHub
+2. Go to [https://streamlit.io/cloud](https://streamlit.io/cloud)
+3. Click "New App" and select your repo
+4. Set `app.py` as the main file
+5. Deploy!
+
+---
+
+## Files in this Repo
+
+| File                | Description                                |
+|---------------------|--------------------------------------------|
+| `app.py`            | Streamlit web app frontend and backend     |
+| `stacking_model.pkl`| Trained stacking model                     |
+| `scaler.pkl`        | Scaler used for input features             |
+| `features.pkl`      | List of features expected by the model     |
+| `target_labels.pkl` | Mapping of prediction to readable labels   |
+| `requirements.txt`  | List of Python dependencies                |
+
+---
+
