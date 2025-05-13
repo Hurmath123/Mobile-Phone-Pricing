@@ -1,154 +1,75 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
-from streamlit_lottie import st_lottie
+import pickle
 import json
-import requests
+import base64
 
-# --- Load model and assets ---
-@st.cache_resource
-def load_assets():
-    model = joblib.load("stacking_model.pkl")
-    scaler = joblib.load("scaler.pkl")
-    features = joblib.load("features.pkl")
-    target_labels = joblib.load("target_labels.pkl")
-    return model, scaler, features, target_labels
+from streamlit_lottie import st_lottie
 
-model, scaler, features, target_labels = load_assets()
+# Set custom background
+def set_background(image_file):
+    with open(image_file, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+    css = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/webp;base64,{encoded}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        color: white;
+    }}
+    .stTextInput > div > input,
+    .stSelectbox > div > div {{
+        background-color: rgba(0,0,0,0.3);
+        color: white;
+    }}
+    .stButton > button {{
+        background-color: #00bfff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }}
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
 
-# --- Lottie loader ---
-def load_lottieurl(url):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-
+# Load Lottie animations from file
 def load_lottiefile(filepath: str):
     with open(filepath, "r") as f:
         return json.load(f)
 
+# Load assets
+set_background("background.webp")
 prediction_anim = load_lottiefile("predict_anim.json")
 success_anim = load_lottiefile("success_anim.json")
 
+# Load model components (adjust file paths as needed)
+with open("scaler.pkl", "rb") as f:
+    scaler = pickle.load(f)
+with open("features.pkl", "rb") as f:
+    features = pickle.load(f)
+with open("stacking_model.pkl", "rb") as f:
+    model = pickle.load(f)
 
-# --- Page config ---
-st.set_page_config(page_title="Mobile Price Predictor", layout="centered")
-
-# --- Custom CSS ---
-st.markdown("""
-    <style>
-    html, body, [class*="css"]  {
-        font-family: 'Segoe UI', sans-serif;
-        background-color: #f2f6fa;
-    }
-    .main {
-        background: linear-gradient(135deg, #e3f2fd, #ffffff);
-        border-radius: 15px;
-        padding: 2rem;
-    }
-    .result-card {
-        background: linear-gradient(135deg, #d0f0c0, #e6ffe6);
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-top: 2rem;
-        border-left: 6px solid #4CAF50;
-    }
-    .stButton > button {
-        background-color: #4CAF50;
-        color: white;
-        padding: 0.6em 1.2em;
-        border-radius: 10px;
-        font-weight: bold;
-        transition: all 0.3s ease-in-out;
-    }
-    .stButton > button:hover {
-        background-color: #45a049;
-        transform: scale(1.02);
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Header ---
 st_lottie(prediction_anim, height=200, key="predict_anim")
-st.title("Mobile Price Predictor")
-st.markdown("Predict the price range of a mobile phone based on its features.")
+st.title("📱 Mobile Price Category Predictor")
 
-# --- Theme toggle ---
-theme = st.toggle("Dark Mode", False)
+# Input fields
+user_input = {}
+for feat in features:
+    user_input[feat] = st.number_input(f"{feat.replace('_', ' ').capitalize()}", min_value=0)
 
-# --- Form ---
-with st.form("form"):
-    st.subheader("Phone Specifications")
-    col1, col2 = st.columns(2)
-    binary_map = {"Yes": 1, "No": 0}
+if st.button("Predict Price Range"):
+    try:
+        input_df = pd.DataFrame([user_input])
+        input_scaled = scaler.transform(input_df)
+        prediction = model.predict(input_scaled)[0]
 
-    with col1:
-        battery_power = st.slider("Battery Power (mAh)", 500, 2000, 1000)
-        blue = st.selectbox("Bluetooth", ["Yes", "No"])
-        clock_speed = st.slider("Clock Speed (GHz)", 0.5, 3.0, 1.5)
-        dual_sim = st.selectbox("Dual SIM", ["Yes", "No"])
-        fc = st.slider("Front Camera (MP)", 0, 20, 5)
-        int_memory = st.slider("Internal Memory (GB)", 2, 128, 32)
-        m_dep = st.slider("Mobile Depth (cm)", 0.1, 1.0, 0.5)
-        mobile_wt = st.slider("Weight (gm)", 80, 250, 150)
-        n_cores = st.slider("Processor Cores", 1, 8, 4)
-
-    with col2:
-        pc = st.slider("Primary Camera (MP)", 0, 30, 10)
-        px_height = st.slider("Pixel Height", 0, 2000, 1000)
-        px_width = st.slider("Pixel Width", 0, 2000, 1000)
-        ram = st.slider("RAM (MB)", 256, 8192, 2048)
-        sc_h = st.slider("Screen Height (cm)", 5, 20, 10)
-        sc_w = st.slider("Screen Width (cm)", 2, 10, 5)
-        talk_time = st.slider("Talk Time (hrs)", 2, 20, 10)
-        four_g = st.selectbox("4G", ["Yes", "No"])
-        three_g = st.selectbox("3G", ["Yes", "No"])
-        touch_screen = st.selectbox("Touch Screen", ["Yes", "No"])
-        wifi = st.selectbox("WiFi", ["Yes", "No"])
-
-    submit = st.form_submit_button("Predict")
-
-if submit:
-    input_data = {
-        'battery_power': battery_power,
-        'blue': binary_map[blue],
-        'clock_speed': clock_speed,
-        'dual_sim': binary_map[dual_sim],
-        'fc': fc,
-        'four_g': binary_map[four_g],
-        'int_memory': int_memory,
-        'm_dep': m_dep,
-        'mobile_wt': mobile_wt,
-        'n_cores': n_cores,
-        'pc': pc,
-        'px_height': px_height,
-        'px_width': px_width,
-        'ram': ram,
-        'sc_h': sc_h,
-        'sc_w': sc_w,
-        'talk_time': talk_time,
-        'three_g': binary_map[three_g],
-        'touch_screen': binary_map[touch_screen],
-        'wifi': binary_map[wifi],
-    }
-
-    df = pd.DataFrame([input_data])
-    scaled = scaler.transform(df[features])
-    pred = model.predict(scaled)[0]
-    prob = model.predict_proba(scaled)[0][pred]
-
-    label_map = {
-        0: "Low (Below ₹5,000)",
-        1: "Medium (₹5,000 - ₹10,000)",
-        2: "High (₹10,000 - ₹15,000)",
-        3: "Very High (Above ₹15,000)"
-    }
-
-    st_lottie(success_anim, height=150, key="success")
-    st.markdown(f"""
-        <div class="result-card">
-            <h4>{label_map[pred]}</h4>
-            <p><strong>Confidence:</strong> {prob:.2%}</p>
-        </div>
-    """, unsafe_allow_html=True)
+        st.success(f"📊 Predicted Price Category: **{prediction}**")
+        st_lottie(success_anim, height=150, key="success")
+    except Exception as e:
+        st.error("Prediction failed. Please check inputs.")
+        st.text(str(e))
