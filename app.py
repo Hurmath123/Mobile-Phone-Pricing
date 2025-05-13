@@ -24,8 +24,13 @@ def load_lottieurl(url):
         return None
     return r.json()
 
-prediction_anim = load_lottieurl("https://lottie.host/497fe43e-7005-4f92-b42b-fc90c0c8ef29/YjGPBwwS9K.json")
-success_anim = load_lottieurl("https://lottie.host/3e452d1a-a395-487c-bb12-e4642a556a3c/ZcKoz0UItb.json")
+def load_lottiefile(filepath: str):
+    with open(filepath, "r") as f:
+        return json.load(f)
+
+prediction_anim = load_lottiefile("predict_anim.json")
+success_anim = load_lottiefile("success_anim.json")
+
 
 # --- Page config ---
 st.set_page_config(page_title="Mobile Price Predictor", layout="centered")
