@@ -1,4 +1,5 @@
 streamlit
+streamlit-lottie
 joblib
 scikit-learn
 xgboost
