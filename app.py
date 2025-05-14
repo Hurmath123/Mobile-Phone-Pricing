@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
 import json
 import os
 import base64
@@ -48,12 +47,10 @@ prediction_anim = load_lottiefile("predict_anim.json")
 success_anim = load_lottiefile("success_anim.json")
 
 # ---- LOAD MODEL & SCALER ----
-with open("scaler.pkl", "rb") as f:
-    scaler = pickle.load(f)
-with open("features.pkl", "rb") as f:
-    features = pickle.load(f)
-with open("stacking_model.pkl", "rb") as f:
-    model = pickle.load(f)
+
+scaler = joblib.load("scaler.pkl")
+features = joblib.load("features.pkl")
+model = joblib.load("stacking_model.pkl")
 
 # ---- UI HEADER ----
 if prediction_anim:
