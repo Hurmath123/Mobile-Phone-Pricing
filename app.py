@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import joblib  # Use joblib to load the model
 import json
 import os
 import base64
@@ -47,7 +48,6 @@ prediction_anim = load_lottiefile("predict_anim.json")
 success_anim = load_lottiefile("success_anim.json")
 
 # ---- LOAD MODEL & SCALER ----
-
 scaler = joblib.load("scaler.pkl")
 features = joblib.load("features.pkl")
 model = joblib.load("stacking_model.pkl")
@@ -61,7 +61,6 @@ st.markdown("Enter mobile phone specifications to predict its **price category**
 # ---- USER INPUT ----
 user_input = {}
 for feat in features:
-    # Improve UX: provide defaults, ranges, and hints if possible
     if "ram" in feat:
         user_input[feat] = st.slider("RAM (MB)", 256, 12000, 4000, step=256)
     elif "battery" in feat:
@@ -78,7 +77,6 @@ if st.button("🔍 Predict Price Range"):
         input_scaled = scaler.transform(input_df)
         prediction = model.predict(input_scaled)[0]
 
-        # Convert numeric category to readable label
         price_labels = {
             0: "Low",
             1: "Medium",
