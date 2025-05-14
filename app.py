@@ -60,15 +60,46 @@ st.markdown("Enter mobile phone specifications to predict its **price category**
 
 # ---- USER INPUT ----
 user_input = {}
+# ---- SMARTER USER INPUT ----
+st.subheader("📋 Phone Specifications")
+
+dropdown_features = {
+    "dual_sim": ["No", "Yes"],
+    "three_g": ["No", "Yes"],
+    "four_g": ["No", "Yes"],
+    "touch_screen": ["No", "Yes"],
+    "wifi": ["No", "Yes"],
+    "blue": ["No", "Yes"]
+}
+
+slider_features = {
+    "ram": (512, 12000, 2048, 256),
+    "battery_power": (1000, 7000, 3000, 100),
+    "px_height": (0, 2000, 960, 10),
+    "px_width": (0, 2000, 1280, 10),
+    "mobile_wt": (80, 250, 150, 1),
+    "int_memory": (4, 256, 32, 4),
+    "talk_time": (2, 24, 12, 1),
+    "clock_speed": (0.5, 3.0, 1.5, 0.1),
+    "fc": (0, 20, 5, 1),
+    "pc": (0, 30, 12, 1),
+    "n_cores": (1, 8, 4, 1),
+    "sc_h": (2, 20, 12, 1),
+    "sc_w": (2, 10, 6, 1)
+}
+
+user_input = {}
+
 for feat in features:
-    if "ram" in feat:
-        user_input[feat] = st.slider("RAM (MB)", 256, 12000, 4000, step=256)
-    elif "battery" in feat:
-        user_input[feat] = st.slider("Battery Power (mAh)", 500, 7000, 3000, step=100)
-    elif "weight" in feat:
-        user_input[feat] = st.slider("Phone Weight (grams)", 80, 250, 150)
+    if feat in dropdown_features:
+        val = st.selectbox(f"{feat.replace('_', ' ').title()}", dropdown_features[feat])
+        user_input[feat] = 1 if val == "Yes" else 0
+    elif feat in slider_features:
+        min_val, max_val, default, step = slider_features[feat]
+        user_input[feat] = st.slider(f"{feat.replace('_', ' ').title()}", min_val, max_val, default, step=step)
     else:
-        user_input[feat] = st.number_input(f"{feat.replace('_', ' ').capitalize()}", min_value=0, value=1)
+        user_input[feat] = st.number_input(f"{feat.replace('_', ' ').title()}", min_value=0, value=1)
+
 
 # ---- PREDICTION ----
 if st.button("🔍 Predict Price Range"):
