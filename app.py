@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib  # Use joblib to load the model
+import joblib
 import json
 import os
 import base64
 from streamlit_lottie import st_lottie
 
-# ---- BACKGROUND SETUP ----
+# ---- BACKGROUND ----
 def set_background(image_file):
     if os.path.exists(image_file):
         with open(image_file, "rb") as f:
@@ -35,19 +35,18 @@ def set_background(image_file):
         """
         st.markdown(css, unsafe_allow_html=True)
 
-# ---- LOAD ANIMATIONS ----
+# ---- LOTTIE ----
 def load_lottiefile(filepath: str):
     if os.path.exists(filepath):
         with open(filepath, "r") as f:
             return json.load(f)
     return None
 
-# ---- LOAD ASSETS ----
+# ---- LOAD FILES ----
 set_background("background.webp")
 prediction_anim = load_lottiefile("predict_anim.json")
 success_anim = load_lottiefile("success_anim.json")
 
-# ---- LOAD MODEL & SCALER ----
 scaler = joblib.load("scaler.pkl")
 features = joblib.load("features.pkl")
 model = joblib.load("stacking_model.pkl")
@@ -56,13 +55,9 @@ model = joblib.load("stacking_model.pkl")
 if prediction_anim:
     st_lottie(prediction_anim, height=180, key="header")
 st.title("📱 Mobile Price Category Predictor")
-st.markdown("Enter mobile phone specifications to predict its **price category** based on real-world market data.")
+st.markdown("Enter specifications to predict the phone’s **price category** with **model confidence**.")
 
-# ---- USER INPUT ----
-user_input = {}
-# ---- SMARTER USER INPUT ----
-st.subheader("📋 Phone Specifications")
-
+# ---- INPUT CONFIGS ----
 dropdown_features = {
     "dual_sim": ["No", "Yes"],
     "three_g": ["No", "Yes"],
@@ -88,6 +83,8 @@ slider_features = {
     "sc_w": (2, 10, 6, 1)
 }
 
+# ---- USER INPUT ----
+st.subheader("📋 Phone Specifications")
 user_input = {}
 
 for feat in features:
@@ -100,13 +97,15 @@ for feat in features:
     else:
         user_input[feat] = st.number_input(f"{feat.replace('_', ' ').title()}", min_value=0, value=1)
 
-
-# ---- PREDICTION ----
+# ---- PREDICT ----
 if st.button("🔍 Predict Price Range"):
     try:
         input_df = pd.DataFrame([user_input])
         input_scaled = scaler.transform(input_df)
-        prediction = model.predict(input_scaled)[0]
+
+        probs = model.predict_proba(input_scaled)[0]
+        prediction = np.argmax(probs)
+        confidence = probs[prediction]
 
         price_labels = {
             0: "Low",
@@ -116,9 +115,11 @@ if st.button("🔍 Predict Price Range"):
         }
 
         st.success(f"📊 Predicted Price Category: **{price_labels.get(prediction, 'Unknown')}**")
+        st.info(f"🔐 Model Confidence: **{confidence:.2%}**")
+
         if success_anim:
             st_lottie(success_anim, height=150, key="success")
 
     except Exception as e:
-        st.error("⚠️ Prediction failed. Please check input values.")
+        st.error("⚠️ Prediction failed. Please check your input.")
         st.text(str(e))
