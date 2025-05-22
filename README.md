@@ -27,8 +27,8 @@ A Streamlit web app that predicts the price range of a mobile phone based on its
 
 ### 1. Clone this repository
 ```bash
-git clone https://github.com/your-username/mobile-price-predictor.git
-cd mobile-price-predictor
+git clone https://github.com/Hurmath123/Mobile-Phone-Pricing.git
+cd Mobile-Phone-Pricing
 ```
 
 ### 2. Install dependencies
@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 ### 3. Run the app locally
 ```bash
-streamlit run app.py
+Python -m streamlit run app.py
 ```
 
 ---
