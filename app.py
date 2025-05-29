@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+import joblib
 import json
 import base64
 from streamlit_lottie import st_lottie
@@ -40,18 +41,15 @@ def load_lottiefile(filepath: str):
     with open(filepath, "r") as f:
         return json.load(f)
 
-# Set background and load animations
+# Load model components
 set_background("background.webp")  # Optional
 predict_anim = load_lottiefile("predict_anim.json")
 success_anim = load_lottiefile("success_anim.json")
 
-# Load model and scaler
-with open("scaler.pkl", "rb") as f:
-    scaler = pickle.load(f)
-with open("features.pkl", "rb") as f:
-    all_features = pickle.load(f)
-with open("stacking_model.pkl", "rb") as f:
-    model = pickle.load(f)
+scaler = pickle.load("scaler.pkl")
+all_features = joblib.load("features.pkl")
+model = joblib.load("stacking_model.pkl")
+
 
 # Use only top 10 important features
 important_features = ['ram', 'battery_power', 'px_width', 'px_height', 'mobile_wt',
