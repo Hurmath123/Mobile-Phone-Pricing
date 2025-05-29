@@ -6,7 +6,7 @@ A Streamlit web app that predicts the price range of a mobile phone based on its
 
 ## Features
 
-- Accepts user input for 20 different phone features
+- Accepts user input for top 5 different phone important features
 - Uses a stacked ensemble model (Logistic Regression, XGBoost, SVM)
 - Predicts price range: **Low**, **Medium**, **High**, or **Very High**
 - Clean, interactive UI built with **Streamlit**
