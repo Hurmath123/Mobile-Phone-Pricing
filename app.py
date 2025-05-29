@@ -46,8 +46,8 @@ set_background("background.webp")  # Optional
 predict_anim = load_lottiefile("predict_anim.json")
 success_anim = load_lottiefile("success_anim.json")
 
-scaler = pickle.load("scaler.pkl")
-all_features = joblib.load("features.pkl")
+scaler = joblib.load("scaler.pkl")
+features = joblib.load("features.pkl")
 model = joblib.load("stacking_model.pkl")
 
 
