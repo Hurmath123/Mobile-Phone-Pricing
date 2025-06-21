@@ -22,6 +22,11 @@ A Streamlit web app that predicts the price range of a mobile phone based on its
 - Scaled input using `StandardScaler`
 
 ---
+## Project Demo
+
+![Demo](readme_resources/demo.gif)
+
+---
 
 ## How to Use
 
